@@ -13,10 +13,23 @@ const PORT = process.env.PORT || 6000
 const app = express();
 app.use(express.json());
 
+const allowedOrigins = [
+  "http://localhost:5173",        // local dev
+  "https://esseauth.netlify.app"  // Netlify deployment
+];
+
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://esseauth.netlify.app/'],
-    credentials: true  //sending cookies
-}))
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow Thunder Client/Postman
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
 
 app.use(cookieParser())
 
